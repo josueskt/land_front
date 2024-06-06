@@ -1,10 +1,10 @@
 import 'dart:math';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-
 import 'package:flutter/material.dart';
 // ignore: library_prefixes
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SocketProvider with ChangeNotifier {
   late IO.Socket socket;
@@ -22,12 +22,14 @@ class SocketProvider with ChangeNotifier {
     connectToServer();
   }
 
-  void connectToServer() {
-
-   
-    String token =
-    //     // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1OTJlZDY4LTI3NjQtNDdjOS1hNDdmLWNiMjQwZTJlYjRlYiIsIm5vbWJyZVVzdWFyaW8iOiJqb3N1ZTEiLCJlbWFpbCI6Impvc3Vlc2t0MjJAaG90LmNvbSIsInJvbGVzIjpbImFkbWluIiwidXNlciJdLCJpYXQiOjE3MTcxMzI2MDAsImV4cCI6MTcxNzEzOTgwMH0.ftmQPqY2TGudKp5pi5F21krSdIKP4v2l4NNBfsKXt8c';
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRlN2E3MTBhLWQxZjEtNDE3ZS1hYjJjLWE1ZTc3ZjFjYTNjMCIsIm5vbWJyZVVzdWFyaW8iOiJ1c2VyIiwiZW1haWwiOiJhY2Nhc0BnbWFpbC5jb20iLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcxNzY0MjQ4NSwiZXhwIjoxNzE3NjQ5Njg1fQ.DRW6Lj30sD7TAPYDa8xRZndrvzWO6jFIry_j-WixEmQ';
+  Future<void> connectToServer() async {
+    final storage = FlutterSecureStorage();
+    String? token = await storage.read(key: 'token');
+    
+    if (token == null) {
+      _showToast('No token found');
+      return;
+    }
 
     var rng = Random();
     roomId = rng.nextInt(100000);
@@ -36,7 +38,7 @@ class SocketProvider with ChangeNotifier {
       'transports': ['websocket'],
       'autoConnect': true,
       'extraHeaders': {
-        'Authorization': token, // Agrega el token aquí
+        'Authorization': token,
       }
     });
 
@@ -47,10 +49,8 @@ class SocketProvider with ChangeNotifier {
     });
 
     socket.on('conectados', (data) {
-      // Assuming data is a map with session information and connected users
       sessionId = data['session']['id'].toString();
-      _connectedUsers =
-          List<Map<String, dynamic>>.from(data['session']['user']['roles']);
+      _connectedUsers = List<Map<String, dynamic>>.from(data['session']['user']['roles']);
       notifyListeners();
     });
 
