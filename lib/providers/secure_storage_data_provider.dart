@@ -29,10 +29,12 @@ class SecureStorageDataProvider implements LocalDataProviderInterface {
   Future<String> readToken() async {
     try {
       String? token = await _storage.read(key: _key);
+    print('Token leído del dispositivo: $token');
 
       if (token != null) {
         return token;
-      } else {
+      } else {        
+   print('Error leyendo el token del dispositivo:');
         throw 'No hay token en el dispositivo';
       }
     } catch (e) {
@@ -40,12 +42,15 @@ class SecureStorageDataProvider implements LocalDataProviderInterface {
     }
   }
 
-  @override
-  Future<void> saveToken(String token) async {
-    try {
-      await _storage.write(key: _key, value: token);
-    } catch (e) {
-      rethrow;
-    }
+ @override
+Future<void> saveToken(String token) async {
+  try {
+    print('Guardando token en el dispositivo: $token');
+    await _storage.write(key: _key, value: token);
+    print('Token guardado correctamente');
+  } catch (e) {
+    print('Error al guardar el token: $e');
+    rethrow;
   }
+}
 }

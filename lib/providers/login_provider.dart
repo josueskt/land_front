@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:nombre_del_proyecto/core/route/app_router.dart';
 import 'package:nombre_del_proyecto/providers/secure_storage_data_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:nombre_del_proyecto/screens/home_screen.dart'; 
 
 class LoginProvider with ChangeNotifier {
   late IO.Socket socket;
-  late BuildContext _context;
-  late LocalDataProviderInterface _dataProvider; // Agrega una variable para almacenar el proveedor de datos local
+  late LocalDataProviderInterface _dataProvider;
+
+
 
   LoginProvider(BuildContext context, LocalDataProviderInterface dataProvider) { 
-    _context = context;
-    _dataProvider = dataProvider; // Asigna el proveedor de datos local
+    _dataProvider = dataProvider; 
     connectToSocket();
   }
 
   void connectToSocket() {
-    socket = IO.io('http://192.168.100.6:3000', <String, dynamic>{
+    socket = IO.io('//192.168.100.6:3000', <String, dynamic>{
       'transports': ['websocket'],
       'query': {'roomId': 'login'}
     });
 
 socket.on('login', (data) {
-  print(data);
-  _saveTokenToDataProvider(data['token']); // Guarda el token en el proveedor de datos local
-  Navigator.pushReplacement(
-    _context,
-    MaterialPageRoute(builder: (_) => const HomeScreen()),
-  );
+ // print(data);
+  _saveTokenToDataProvider(data['token']);   // Guarda el token en el proveedor de datos local
+  print('pasamos $data');
+ // Navega a la pantalla de inicio después de hacer login
+      Routes.router.go(Routes.homePath);
   notifyListeners();
 });
   }
@@ -41,9 +41,20 @@ socket.on('login', (data) {
   Future<void> _saveTokenToDataProvider(String token) async {
     try {
       await _dataProvider.saveToken(token);
+      print(token);
     } catch (e) {
       print('Error saving token to data provider: $e');
       // Manejar el error según sea necesario
+    }
+  }
+
+void logout() async {
+    try {     
+      await _dataProvider.deleteToken();  
+      notifyListeners();
+       Routes.router.go(Routes.loginPath);
+    } catch (e) {
+      print('Error al cerrar sesión: $e');       
     }
   }
 }

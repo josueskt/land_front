@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nombre_del_proyecto/providers/login_provider.dart';
 import 'package:nombre_del_proyecto/providers/socket_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -18,6 +19,33 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: appBarColor,
         title: Text(socketProvider.isConnected ? 'Conectado' : 'Desconectado'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              // Encabezado del Drawer
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              title: Text('Cerrar Sesión'),
+              onTap: () {
+                _logout(context); // Llama a la función de cerrar sesión
+              },
+            ),
+            // Otros elementos del Drawer
+          ],
+        ),
       ),
       body: Center(
         child: Column(
@@ -95,4 +123,12 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
+   // Función para cerrar sesión
+  void _logout(BuildContext context) {
+    final provider = Provider.of<LoginProvider>(context, listen: false);
+    provider.logout(); // Llama a la función logout del proveedor de login
+  }
 }
+
+
