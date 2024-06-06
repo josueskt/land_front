@@ -25,7 +25,7 @@ class SocketProvider with ChangeNotifier {
   Future<void> connectToServer() async {
     final storage = FlutterSecureStorage();
     String? token = await storage.read(key: 'token');
-    
+
     if (token == null) {
       _showToast('No token found');
       return;
@@ -34,7 +34,7 @@ class SocketProvider with ChangeNotifier {
     var rng = Random();
     roomId = rng.nextInt(100000);
 
-    socket = IO.io('ws://192.168.100.6:3000/?roomId=$roomId', <String, dynamic>{
+    socket = IO.io('ws://192.168.3.20:3000/?roomId=$roomId', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
       'extraHeaders': {
@@ -50,7 +50,8 @@ class SocketProvider with ChangeNotifier {
 
     socket.on('conectados', (data) {
       sessionId = data['session']['id'].toString();
-      _connectedUsers = List<Map<String, dynamic>>.from(data['session']['user']['roles']);
+      _connectedUsers =
+          List<Map<String, dynamic>>.from(data['session']['user']['roles']);
       notifyListeners();
     });
 
