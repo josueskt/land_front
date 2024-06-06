@@ -23,8 +23,10 @@ class SocketProvider with ChangeNotifier {
   }
 
   void connectToServer() {
+
+   
     String token =
-        // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1OTJlZDY4LTI3NjQtNDdjOS1hNDdmLWNiMjQwZTJlYjRlYiIsIm5vbWJyZVVzdWFyaW8iOiJqb3N1ZTEiLCJlbWFpbCI6Impvc3Vlc2t0MjJAaG90LmNvbSIsInJvbGVzIjpbImFkbWluIiwidXNlciJdLCJpYXQiOjE3MTcxMzI2MDAsImV4cCI6MTcxNzEzOTgwMH0.ftmQPqY2TGudKp5pi5F21krSdIKP4v2l4NNBfsKXt8c';
+    //     // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1OTJlZDY4LTI3NjQtNDdjOS1hNDdmLWNiMjQwZTJlYjRlYiIsIm5vbWJyZVVzdWFyaW8iOiJqb3N1ZTEiLCJlbWFpbCI6Impvc3Vlc2t0MjJAaG90LmNvbSIsInJvbGVzIjpbImFkbWluIiwidXNlciJdLCJpYXQiOjE3MTcxMzI2MDAsImV4cCI6MTcxNzEzOTgwMH0.ftmQPqY2TGudKp5pi5F21krSdIKP4v2l4NNBfsKXt8c';
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRlN2E3MTBhLWQxZjEtNDE3ZS1hYjJjLWE1ZTc3ZjFjYTNjMCIsIm5vbWJyZVVzdWFyaW8iOiJ1c2VyIiwiZW1haWwiOiJhY2Nhc0BnbWFpbC5jb20iLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcxNzY0MjQ4NSwiZXhwIjoxNzE3NjQ5Njg1fQ.DRW6Lj30sD7TAPYDa8xRZndrvzWO6jFIry_j-WixEmQ';
 
     var rng = Random();

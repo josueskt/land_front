@@ -1,27 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:nombre_del_proyecto/providers/secure_storage_data_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nombre_del_proyecto/screens/home_screen.dart'; 
 
 class LoginProvider with ChangeNotifier {
   late IO.Socket socket;
+  late BuildContext _context;
+  late LocalDataProviderInterface _dataProvider; // Agrega una variable para almacenar el proveedor de datos local
 
-  LoginProvider() {
+  LoginProvider(BuildContext context, LocalDataProviderInterface dataProvider) { 
+    _context = context;
+    _dataProvider = dataProvider; // Asigna el proveedor de datos local
     connectToSocket();
   }
 
   void connectToSocket() {
-    socket = IO.io('localhost:3000/?roomId=login', <String, dynamic>{
+    socket = IO.io('http://192.168.100.6:3000', <String, dynamic>{
       'transports': ['websocket'],
-      'autoConnect': true,
-    //  'query': {'roomId': 'login'}
+      'query': {'roomId': 'login'}
     });
 
-    socket.on('token', (data) async {
-      print('Received token: $data');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', data);
-      notifyListeners();
-    });
+socket.on('login', (data) {
+  print(data);
+  _saveTokenToDataProvider(data['token']); // Guarda el token en el proveedor de datos local
+  Navigator.pushReplacement(
+    _context,
+    MaterialPageRoute(builder: (_) => const HomeScreen()),
+  );
+  notifyListeners();
+});
   }
 
   void sendLogin(String username, String password) {
@@ -31,13 +38,12 @@ class LoginProvider with ChangeNotifier {
     });
   }
 
-  Future<String?> getToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
-
-  Future<void> removeToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
+  Future<void> _saveTokenToDataProvider(String token) async {
+    try {
+      await _dataProvider.saveToken(token);
+    } catch (e) {
+      print('Error saving token to data provider: $e');
+      // Manejar el error según sea necesario
+    }
   }
 }

@@ -8,13 +8,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final socketProvider = Provider.of<LoginProvider>(context);
-
-    void login() {
-      String username = _usernameController.text;
-      String password = _passwordController.text;
-      socketProvider.sendLogin(username, password);
-    }
+    final loginProvider = Provider.of<LoginProvider>(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
@@ -33,9 +27,14 @@ class LoginScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: login,
+              onPressed: () {
+                String username = _usernameController.text;
+                String password = _passwordController.text;
+                loginProvider.sendLogin(username, password);
+              },
               child: const Text('Login'),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
