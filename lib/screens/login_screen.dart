@@ -30,7 +30,7 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 String username = _usernameController.text;
                 String password = _passwordController.text;
-                loginProvider.sendLogin(username, password);
+                loginProvider.sendLogin(username, password, context);
               },
               child: const Text('Login'),
             ),

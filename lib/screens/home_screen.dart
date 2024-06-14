@@ -63,8 +63,8 @@ class HomeScreen extends StatelessWidget {
             if (socketProvider.getSessionId != null)
               Text(
                 'Session ID: ${socketProvider.getSessionId}',
-                style: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             Expanded(
               child: ListView.builder(
@@ -124,11 +124,10 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-   // Función para cerrar sesión
+  // Función para cerrar sesión
   void _logout(BuildContext context) {
     final provider = Provider.of<LoginProvider>(context, listen: false);
-    provider.logout(); // Llama a la función logout del proveedor de login
+    provider
+        .logout(context); // Llama a la función logout del proveedor de login
   }
 }
-
-

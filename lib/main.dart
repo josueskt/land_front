@@ -7,7 +7,6 @@ import 'package:nombre_del_proyecto/providers/socket_provider.dart';
 import 'package:nombre_del_proyecto/screens/home_screen.dart';
 import 'package:nombre_del_proyecto/screens/login_screen.dart';
 
-
 import 'package:provider/provider.dart';
 
 void main() {
@@ -33,31 +32,13 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: FutureBuilder<bool>(
-          future: _hasToken(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              // Si estamos esperando el resultado del futuro, muestra un widget de carga
-              return const CircularProgressIndicator();
-            } else {
-              // Si el futuro ha completado su ejecución
-              if (snapshot.hasData) {
-                // Si hay un token en el dispositivo, redirige a la pantalla de inicio
-                return snapshot.data! ? HomeScreen() : LoginScreen();
-              } else {
-                // Si hubo un error al obtener el token, maneja el error según sea necesario
-                return const Text('Error obteniendo el token');
-              }
-            }
-          },
-        ),
+        initialRoute: '/home', // Ruta inicial de la aplicación
+        routes: {
+          '/login': (context) => LoginScreen(), // Ruta de la pantalla de login
+          '/home': (context) =>
+              const HomeScreen(), // Ruta de la pantalla de inicio
+        },
       ),
     );
-  }
-
-  Future<bool> _hasToken() async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-    return token != null;
   }
 }
