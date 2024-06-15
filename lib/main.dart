@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: '/home', // Ruta inicial de la aplicación
+        initialRoute: '/login', // Ruta inicial de la aplicación
         routes: {
           '/login': (context) => LoginScreen(), // Ruta de la pantalla de login
           '/home': (context) =>
