@@ -5,6 +5,7 @@ import 'package:nombre_del_proyecto/providers/login_provider.dart';
 import 'package:nombre_del_proyecto/providers/secure_storage_data_provider.dart';
 import 'package:nombre_del_proyecto/providers/socket_provider.dart';
 import 'package:nombre_del_proyecto/screens/home_screen.dart';
+import 'package:nombre_del_proyecto/screens/initial_screen.dart';
 import 'package:nombre_del_proyecto/screens/login_screen.dart';
 
 import 'package:provider/provider.dart';
@@ -25,15 +26,15 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: socketProvider),
         ChangeNotifierProvider(
           create: (context) => LoginProvider(
-            context,
             SecureStorageDataProvider(storage: const FlutterSecureStorage()),
           ),
         ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: '/login', // Ruta inicial de la aplicación
+        initialRoute: '/', // Ruta inicial de la aplicación
         routes: {
+          '/': (context) => InitialScreen(), // Ruta de la pantalla inicial
           '/login': (context) => LoginScreen(), // Ruta de la pantalla de login
           '/home': (context) =>
               const HomeScreen(), // Ruta de la pantalla de inicio

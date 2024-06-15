@@ -30,7 +30,8 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 String username = _usernameController.text;
                 String password = _passwordController.text;
-                loginProvider.sendLogin(username, password, context);
+                loginProvider.sendLogin(username, password);
+                _logout(context);
               },
               child: const Text('Login'),
             ),
@@ -39,5 +40,11 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _logout(BuildContext context) {
+    final provider = Provider.of<LoginProvider>(context, listen: false);
+    provider.logout();
+    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
   }
 }

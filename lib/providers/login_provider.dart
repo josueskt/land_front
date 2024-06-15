@@ -5,11 +5,8 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 class LoginProvider with ChangeNotifier {
   late IO.Socket socket;
   late LocalDataProviderInterface _dataProvider;
-  late BuildContext _context;
 
-  LoginProvider(BuildContext context, LocalDataProviderInterface dataProvider) {
-    _context = context;
-    _dataProvider = dataProvider;
+  LoginProvider(this._dataProvider) {
     connectToSocket();
   }
 
@@ -20,36 +17,42 @@ class LoginProvider with ChangeNotifier {
     });
 
     socket.on('login', (data) {
-      _saveTokenToDataProvider(data['token'], BuildContext);
+      _saveTokenToDataProvider(data['token']);
       notifyListeners();
     });
   }
 
-  void sendLogin(String username, String password, context) {
+  void sendLogin(String username, String password) {
     socket.emit('sendtoken', {
       'nombreUsuario': username,
       'password': password,
     });
   }
 
-  Future<void> _saveTokenToDataProvider(String token, context) async {
+  Future<void> _saveTokenToDataProvider(String token) async {
     try {
       await _dataProvider.saveToken(token);
-      // Navegar a la pantalla de inicio después de guardar el token
-      // ignore: use_build_context_synchronously
-      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      notifyListeners();
     } catch (e) {
       print('Error saving token to data provider: $e');
     }
   }
 
-  void logout(BuildContext context) async {
+  Future<void> logout() async {
     try {
       await _dataProvider.deleteToken();
       notifyListeners();
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     } catch (e) {
       print('Error al cerrar sesión: $e');
+    }
+  }
+
+  Future<String?> getToken() async {
+    try {
+      return await _dataProvider.readToken();
+    } catch (e) {
+      print('Error checking for token: $e');
+      return null;
     }
   }
 }

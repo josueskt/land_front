@@ -127,7 +127,7 @@ class HomeScreen extends StatelessWidget {
   // Función para cerrar sesión
   void _logout(BuildContext context) {
     final provider = Provider.of<LoginProvider>(context, listen: false);
-    provider
-        .logout(context); // Llama a la función logout del proveedor de login
+    provider.logout();
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 }
