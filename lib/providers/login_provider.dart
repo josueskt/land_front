@@ -11,7 +11,7 @@ class LoginProvider with ChangeNotifier {
   }
 
   void connectToSocket() {
-    socket = IO.io('//192.168.28.129:3000', <String, dynamic>{
+    socket = IO.io('//192.168.100.6:3000', <String, dynamic>{
       'transports': ['websocket'],
       'query': {'roomId': 'login'}
     });

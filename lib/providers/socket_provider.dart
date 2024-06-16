@@ -37,7 +37,7 @@ class SocketProvider with ChangeNotifier {
     roomId = rng.nextInt(100000);
 
     socket =
-        IO.io('ws://192.168.28.129:3000/?roomId=$roomId', <String, dynamic>{
+        IO.io('ws://192.168.100.6:3000/?roomId=$roomId', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
       'extraHeaders': {

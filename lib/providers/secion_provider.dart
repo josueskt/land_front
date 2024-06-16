@@ -31,7 +31,7 @@ class SessionProvider with ChangeNotifier {
     this.roomId = roomId;
 
     socket =
-        IO.io('ws://192.168.28.129:3000/?roomId=$roomId', <String, dynamic>{
+        IO.io('ws://192.168.100.6:3000/?roomId=$roomId', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
       'extraHeaders': {
