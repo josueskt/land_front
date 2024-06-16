@@ -1,4 +1,5 @@
-import 'dart:typed_data';
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nombre_del_proyecto/providers/login_provider.dart';
@@ -7,6 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 
 class SessionScreen extends StatefulWidget {
+  const SessionScreen({super.key});
+
   @override
   _SessionScreenState createState() => _SessionScreenState();
 }
@@ -21,7 +24,7 @@ class _SessionScreenState extends State<SessionScreen> {
     sessionProvider.screenshotController = screenshotController;
 
     Color appBarColor = sessionProvider.isConnected
-        ? Color.fromARGB(255, 78, 255, 42)
+        ? const Color.fromARGB(255, 78, 255, 42)
         : Colors.red;
 
     return Screenshot(
@@ -29,13 +32,13 @@ class _SessionScreenState extends State<SessionScreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: appBarColor,
-          title: Text('Session Screen'),
+          title: const Text('Session Screen'),
         ),
         drawer: Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
-              DrawerHeader(
+              const DrawerHeader(
                 decoration: BoxDecoration(
                   color: Colors.blue,
                 ),
@@ -48,19 +51,19 @@ class _SessionScreenState extends State<SessionScreen> {
                 ),
               ),
               ListTile(
-                title: Text('Cerrar Sesión'),
+                title: const Text('Cerrar Sesión'),
                 onTap: () {
                   _logout(context);
                 },
               ),
               ListTile(
-                title: Text("home"),
+                title: const Text("home"),
                 onTap: () {
                   _home(context);
                 },
               ),
               ListTile(
-                title: Text("unirse a sesion"),
+                title: const Text("unirse a sesion"),
                 onTap: () {
                   _session(context);
                 },
@@ -88,16 +91,16 @@ class _SessionScreenState extends State<SessionScreen> {
                     ),
                   )
                 else
-                  Text('No image received'),
-                SizedBox(height: 20),
+                  const Text('No image received'),
+                const SizedBox(height: 20),
                 TextField(
                   controller: roomIdController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Enter Room ID',
                     border: OutlineInputBorder(),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     int roomId = int.tryParse(roomIdController.text) ?? 0;
@@ -114,7 +117,7 @@ class _SessionScreenState extends State<SessionScreen> {
                       );
                     }
                   },
-                  child: Text('Connect to Room'),
+                  child: const Text('Connect to Room'),
                 ),
               ],
             ),
