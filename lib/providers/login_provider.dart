@@ -4,7 +4,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class LoginProvider with ChangeNotifier {
   late IO.Socket socket;
-  late LocalDataProviderInterface _dataProvider;
+  late final LocalDataProviderInterface _dataProvider;
 
   LoginProvider(this._dataProvider) {
     connectToSocket();
@@ -32,9 +32,28 @@ class LoginProvider with ChangeNotifier {
   Future<void> _saveTokenToDataProvider(String token) async {
     try {
       await _dataProvider.saveToken(token);
+
       notifyListeners();
     } catch (e) {
       print('Error saving token to data provider: $e');
+    }
+  }
+
+  Future<void> _login(BuildContext context) async {
+    try {
+      final token = await _dataProvider.readToken();
+      print("Token leído del dispositivo: $token");
+
+      // Verificar si el token no está vacío y realizar la navegación correspondiente
+      if (token.isNotEmpty) {
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      } else {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      }
+
+      notifyListeners();
+    } catch (e) {
+      print('Error al cerrar sesión: $e');
     }
   }
 

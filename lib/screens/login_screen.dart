@@ -31,7 +31,7 @@ class LoginScreen extends StatelessWidget {
                 String username = _usernameController.text;
                 String password = _passwordController.text;
                 loginProvider.sendLogin(username, password);
-                _logout(context);
+                _logout(context, loginProvider);
               },
               child: const Text('Login'),
             ),
@@ -42,9 +42,16 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  void _logout(BuildContext context) {
-    final provider = Provider.of<LoginProvider>(context, listen: false);
-    provider.logout();
-    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+  void _logout(BuildContext context, LoginProvider loginProvider) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    String? token = await loginProvider.getToken();
+
+    if (token != null && token.isNotEmpty) {
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+    } else {
+      // Si no hay token válido, simplemente limpia los campos y no cambia de pantalla
+      _usernameController.clear();
+      _passwordController.clear();
+    }
   }
 }

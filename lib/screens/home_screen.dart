@@ -1,31 +1,33 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nombre_del_proyecto/providers/login_provider.dart';
 import 'package:nombre_del_proyecto/providers/socket_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final socketProvider = Provider.of<SocketProvider>(context);
 
     Color appBarColor = socketProvider.isConnected
-        ? const Color.fromARGB(255, 177, 68, 68)
+        ? Color.fromARGB(255, 78, 255, 42)
         : Colors.red;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: appBarColor,
-        title: Text(socketProvider.isConnected ? 'Conectado' : 'Desconectado'),
+        title: Text("CopyDesk"),
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              // Encabezado del Drawer
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
@@ -40,10 +42,15 @@ class HomeScreen extends StatelessWidget {
             ListTile(
               title: Text('Cerrar Sesión'),
               onTap: () {
-                _logout(context); // Llama a la función de cerrar sesión
+                _logout(context);
               },
             ),
-            // Otros elementos del Drawer
+            ListTile(
+              title: Text("unirse a secion"),
+              onTap: () {
+                _secion(context);
+              },
+            )
           ],
         ),
       ),
@@ -62,9 +69,8 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             if (socketProvider.getSessionId != null)
               Text(
-                'Session ID: ${socketProvider.getSessionId}',
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                'Session ID: ${socketProvider.roomId}',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             Expanded(
               child: ListView.builder(
@@ -73,24 +79,34 @@ class HomeScreen extends StatelessWidget {
                   final user = socketProvider.connectedUsers[index];
                   return ListTile(
                     title: Text('User ID: ${user['id']}'),
-                    subtitle: Text(
-                        'User Name: ${user['nombre']}'), // Assuming 'nombre' is a field in your user data
+                    subtitle: Text('User Name: ${user['nombre']}'),
                   );
                 },
               ),
             ),
+            if (socketProvider.receivedImage != null)
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 20),
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.width * 0.8,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black, width: 1.0),
+                  borderRadius: BorderRadius.circular(8.0),
+                  image: DecorationImage(
+                    image: MemoryImage(socketProvider.receivedImage!),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 FloatingActionButton(
                   onPressed: () async {
-                    // Solicitar permiso de captura de pantalla
                     var status = await Permission.mediaLibrary.request();
                     if (status.isGranted) {
-                      // Permiso concedido, llamar a startScreenShare
                       socketProvider.startScreenShare();
                     } else {
-                      // Permiso denegado, muestra un mensaje al usuario
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content:
@@ -99,14 +115,14 @@ class HomeScreen extends StatelessWidget {
                       );
                     }
                   },
-                  tooltip: 'Start Screen Share',
+                  tooltip: 'Iniciar Compartir Pantalla',
                   backgroundColor: Colors.blue,
                   child: const Icon(Icons.screen_share),
                 ),
                 const SizedBox(width: 20),
                 FloatingActionButton(
                   onPressed: socketProvider.stopScreenShare,
-                  tooltip: 'Stop Screen Share',
+                  tooltip: 'Detener Compartir Pantalla',
                   backgroundColor: Colors.red,
                   child: const Icon(Icons.stop),
                 ),
@@ -117,17 +133,24 @@ class HomeScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: socketProvider.connectToServer,
-        tooltip: socketProvider.isConnected ? 'Connected' : 'Disconnected',
+        tooltip: socketProvider.isConnected ? 'Conectado' : 'Desconectado',
         backgroundColor: socketProvider.isConnected ? Colors.green : Colors.red,
         child: const Icon(Icons.account_tree_outlined),
       ),
     );
   }
 
-  // Función para cerrar sesión
-  void _logout(BuildContext context) {
+  Future<void> _logout(BuildContext context) async {
     final provider = Provider.of<LoginProvider>(context, listen: false);
+    final socketProvider = Provider.of<SocketProvider>(context, listen: false);
+
+    await socketProvider.logout();
+
     provider.logout();
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  }
+
+  Future<void> _secion(BuildContext context) async {
+    Navigator.pushNamedAndRemoveUntil(context, '/seci', (route) => false);
   }
 }

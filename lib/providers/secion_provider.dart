@@ -1,40 +1,34 @@
-import 'dart:math';
 import 'dart:typed_data';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter/material.dart';
-// ignore: library_prefixes
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:screenshot/screenshot.dart';
 
-class SocketProvider with ChangeNotifier {
+class SessionProvider with ChangeNotifier {
   late IO.Socket socket;
   bool _isConnected = false;
   String? sessionId;
   List<Map<String, dynamic>> _connectedUsers = [];
   int roomId = 0;
-  RTCPeerConnection? _peerConnection;
-  MediaStream? _localStream;
+  ScreenshotController screenshotController = ScreenshotController();
+
   bool get isConnected => _isConnected;
   String? get getSessionId => sessionId;
   List<Map<String, dynamic>> get connectedUsers => _connectedUsers;
 
-  SocketProvider() {
-    roomId;
-  }
+  SessionProvider({this.roomId = 0});
 
-  Future<void> connectToServer() async {
+  Future<void> connectToServer(int roomId) async {
     final storage = FlutterSecureStorage();
     String? token = await storage.read(key: 'token');
 
     if (token == null) {
       _showToast('No token found');
-
       return;
     }
 
-    var rng = Random();
-    roomId = rng.nextInt(100000);
+    this.roomId = roomId;
 
     socket =
         IO.io('ws://192.168.28.129:3000/?roomId=$roomId', <String, dynamic>{
@@ -49,6 +43,7 @@ class SocketProvider with ChangeNotifier {
       _isConnected = true;
       notifyListeners();
       _showToast('Connected to server');
+      _startSendingImages();
     });
 
     socket.on('conectados', (data) {
@@ -71,6 +66,7 @@ class SocketProvider with ChangeNotifier {
       _isConnected = false;
       notifyListeners();
       _showToast('Disconnected from server');
+      _stopSendingImages();
     });
   }
 
@@ -81,63 +77,37 @@ class SocketProvider with ChangeNotifier {
     // Aquí puedes procesar la imagen recibida según tus necesidades
     // Por ejemplo, almacenarla localmente, mostrarla en la interfaz, etc.
     _receivedImage = imageData;
+    print('Received image: ${imageData.length} bytes');
     // Notificar a los listeners que ha llegado una nueva imagen
     notifyListeners();
   }
 
-  void sendPing() {
-    _showToast('Checking server status...');
-    socket.emit('ping');
-  }
+  void _startSendingImages() async {
+    while (_isConnected) {
+      try {
+        Uint8List? imageData = await screenshotController.capture(
+          delay: Duration(milliseconds: 1),
+        );
 
-  Future<void> startScreenShare() async {
-    _localStream = await navigator.mediaDevices.getDisplayMedia({
-      'video': {'cursor': 'always'},
-      'audio': false,
-    });
+        if (imageData != null) {
+          socket.emit('sendImage', imageData);
+        }
 
-    _peerConnection = await createPeerConnection({});
-    _peerConnection!.addStream(_localStream!);
-
-    _peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
-      socket.emit('candidate', {
-        'candidate': candidate.candidate,
-        'sdpMid': candidate.sdpMid,
-        'sdpMLineIndex': candidate.sdpMLineIndex,
-      });
-    };
-
-    _peerConnection!.onIceConnectionState = (RTCIceConnectionState state) {
-      if (state == RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
-        stopScreenShare();
+        await Future.delayed(Duration(seconds: 1));
+      } catch (e) {
+        print('Error capturing screen: $e');
       }
-    };
-
-    RTCSessionDescription description = await _peerConnection!.createOffer({
-      'offerToReceiveAudio': false,
-      'offerToReceiveVideo': true,
-    });
-
-    await _peerConnection!.setLocalDescription(description);
-    socket.emit('offer', {
-      'sdp': description.sdp,
-      'type': description.type,
-    });
+    }
   }
 
-  void stopScreenShare() {
-    _localStream?.getTracks().forEach((track) {
-      track.stop();
-    });
-    _localStream = null;
-    _peerConnection?.close();
-    _peerConnection = null;
+  void _stopSendingImages() {
+    // Detener la captura de pantalla si es necesario
   }
 
   void disconnectFromServer() {
-    stopScreenShare();
     notifyListeners();
     socket.disconnect();
+    _stopSendingImages();
   }
 
   void _showToast(String message) {
@@ -154,12 +124,11 @@ class SocketProvider with ChangeNotifier {
 
   Future<void> logout() async {
     disconnectFromServer();
-    // Lógica adicional de desconexión si es necesario
   }
 
   @override
   void dispose() {
-    stopScreenShare();
+    disconnectFromServer();
     socket.dispose();
     super.dispose();
   }
