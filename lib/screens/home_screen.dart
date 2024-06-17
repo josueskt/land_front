@@ -1,11 +1,7 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nombre_del_proyecto/providers/login_provider.dart';
 import 'package:nombre_del_proyecto/providers/socket_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -131,22 +127,36 @@ class HomeScreen extends StatelessWidget {
               },
             ),
           ),
-          if (socketProvider.receivedImage != null)
-            Container(
+          const SizedBox(height: 20),
+          // Optimización para la imagen recibida usando AnimatedSwitcher
+          _buildAnimatedImage(context, socketProvider),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnimatedImage(
+      BuildContext context, SocketProvider socketProvider) {
+    return AnimatedSwitcher(
+      duration: Duration(milliseconds: 280), // Duración de la animación
+      switchInCurve: Curves.easeIn,
+      switchOutCurve: Curves.easeOut,
+      child: socketProvider.receivedImage != null
+          ? Container(
+              key: UniqueKey(), // Añade una clave única para el contenedor
               margin: EdgeInsets.symmetric(vertical: 20),
               width: MediaQuery.of(context).size.width * 1,
               height: MediaQuery.of(context).size.height * 0.6,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black, width: 1.0),
                 borderRadius: BorderRadius.circular(8.0),
-                image: DecorationImage(
-                  image: MemoryImage(socketProvider.receivedImage!),
-                  fit: BoxFit.contain,
-                ),
               ),
-            ),
-        ],
-      ),
+              child: Image.memory(
+                socketProvider.receivedImage!,
+                fit: BoxFit.contain,
+              ),
+            )
+          : Container(), // Mostrar un contenedor vacío si no hay imagen recibida
     );
   }
 
