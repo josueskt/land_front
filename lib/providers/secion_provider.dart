@@ -43,7 +43,6 @@ class SessionProvider with ChangeNotifier {
       _isConnected = true;
       notifyListeners();
       _showToast('Connected to server');
-      _startSendingImages();
     });
 
     socket.on('conectados', (data) {
@@ -66,7 +65,7 @@ class SessionProvider with ChangeNotifier {
       _isConnected = false;
       notifyListeners();
       _showToast('Disconnected from server');
-      _stopSendingImages();
+      stopSendingImages();
     });
   }
 
@@ -82,32 +81,29 @@ class SessionProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void _startSendingImages() async {
+  void startSendingImages() async {
+    _isConnected = true;
     while (_isConnected) {
       try {
-        Uint8List? imageData = await screenshotController.capture(
-          delay: Duration(milliseconds: 1),
-        );
+        Uint8List? imageData = await screenshotController.capture();
 
         if (imageData != null) {
           socket.emit('sendImage', imageData);
         }
-
-        await Future.delayed(Duration(seconds: 1));
       } catch (e) {
         print('Error capturing screen: $e');
       }
     }
   }
 
-  void _stopSendingImages() {
-    // Detener la captura de pantalla si es necesario
+  void stopSendingImages() {
+    _isConnected = false;
   }
 
   void disconnectFromServer() {
     notifyListeners();
     socket.disconnect();
-    _stopSendingImages();
+    stopSendingImages();
   }
 
   void _showToast(String message) {
